@@ -7,6 +7,7 @@ import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
+import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 import weka.filters.unsupervised.instance.Randomize;
 import weka.filters.unsupervised.instance.RemovePercentage;
 
@@ -86,4 +87,11 @@ public class AtributuenHautapena {
         return selection;
     }
 
+    public Instances replaceMissingValues(Instances data) throws Exception {
+        ReplaceMissingValues filterReplace = new ReplaceMissingValues();
+        filterReplace.setInputFormat(data);
+        Instances replaced = Filter.useFilter(data,filterReplace);
+        replaced.setClassIndex(replaced.numAttributes()-1);
+        return replaced;
+    }
 }

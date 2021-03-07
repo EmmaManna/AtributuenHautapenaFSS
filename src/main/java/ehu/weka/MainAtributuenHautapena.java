@@ -2,7 +2,6 @@ package ehu.weka;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.evaluation.NominalPrediction;
 import weka.core.Instances;
 
 import java.io.FileWriter;
@@ -29,26 +28,49 @@ public class MainAtributuenHautapena {
         AtributuenHautapena fss = AtributuenHautapena.getInstance();
         Instances data = fss.datuakKargatu(args[0]);
 
-        FileWriter fw1 = new FileWriter(args[3]);
-
 
         //1. Eredu iragarle optimoa sortu eta gorde
-        Instances selection = fss.selection(data);
-        Evaluation holdOut = fss.holdOut(selection,70);
-
-        System.out.println("Atributu kopurua: "+selection.numAttributes());
-        System.out.println("\n"+holdOut.toMatrixString()+"\n");
-        System.out.println("F-score: "+holdOut.weightedFMeasure());
-
-        Classifier cls = fss.sailkatzailea();
-        cls.buildClassifier(data);
-        fss.serialization(args[1],cls);
+        iragarleOptimoa(data,args[1]);
 
 
         //2. Test multzoaren iragarpenak egin
         Instances test = fss.datuakKargatu(args[2]);
         Classifier model = fss.deserialize(args[1]);
+        iragarpenak(data,test,model,args[3]);
 
+
+        //3. Aurre-prozesua:
+        Instances dataR = fss.replaceMissingValues(data);
+        Instances testR = fss.replaceMissingValues(test);
+
+        //3.1.Iragarle optimoa
+        iragarleOptimoa(dataR,args[4]);
+
+        //3.2.Iragarpenak
+        Classifier modelR = fss.deserialize(args[4]);
+        iragarpenak(dataR,testR,modelR,args[5]);
+
+    }
+
+
+    public static void iragarleOptimoa(Instances data, String pathModel) throws Exception {
+        //1. Eredu iragarle optimoa sortu eta gorde
+        AtributuenHautapena fss = AtributuenHautapena.getInstance();
+        Instances selection = fss.selection(data);
+        Evaluation holdOut = fss.holdOut(selection,70);
+
+        System.out.println("Atributu kopurua: "+selection.numAttributes());
+        System.out.println("\n"+holdOut.toMatrixString()+"\n");
+        System.out.println("F-score: "+holdOut.weightedFMeasure()+"\n");
+
+        Classifier cls = fss.sailkatzailea();
+        cls.buildClassifier(data);
+        fss.serialization(pathModel,cls);
+    }
+
+
+    public static void iragarpenak(Instances data, Instances test, Classifier model, String path) throws Exception {
+        //2. Test multzoaren iragarpenak egin
         if(!data.equalHeaders(test)){
             System.out.println("Test-multzoa ez da eredu iragarlearekiko bateragarria.");
             System.exit(0);
@@ -57,26 +79,21 @@ public class MainAtributuenHautapena {
         Evaluation eval = new Evaluation(test);
         eval.evaluateModel(model,test);
 
-        fw1.write("Exekuzio data: "+java.time.LocalDateTime.now().toString()+"\n");
-        fw1.write("\n-- Test Set -- \n");
-        fw1.write("Instantzia\tActual\tPredicted Errorea\n");
+        FileWriter fw = new FileWriter(path);
+        fw.write("Exekuzio data: "+java.time.LocalDateTime.now().toString()+"\n");
+        fw.write("\n-- Test Set -- \n");
+        fw.write("Instantzia\tActual\tPredicted Errorea\n");
         for(int i=0; i< eval.predictions().size();i++){
             double actual = eval.predictions().get(i).actual();
             double predicted = eval.predictions().get(i).predicted();
 
-            fw1.write("\t"+(i+1)+"\t"+test.instance(i).stringValue(test.classIndex())+ "\t"+test.attribute(test.classIndex()).value((int) predicted));
+            fw.write("\t"+(i+1)+"\t"+test.instance(i).stringValue(test.classIndex())+ "\t"+test.attribute(test.classIndex()).value((int) predicted));
 
             if(actual!=predicted && !Double.isNaN(actual)){
-                fw1.write("\t     +");
+                fw.write("\t     +");
             }
-            fw1.write("\n");
+            fw.write("\n");
         }
-
-
-        //3. Aurre-prozesua:
-
-
-
-        fw1.close();
+        fw.close();
     }
 }
