@@ -6,6 +6,7 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
+import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.instance.Randomize;
 import weka.filters.unsupervised.instance.RemovePercentage;
 
@@ -76,4 +77,13 @@ public class AtributuenHautapena {
         // deserialize model
         return (Classifier) weka.core.SerializationHelper.read(path);
     }
+
+    public Instances selection(Instances data) throws Exception {
+        AttributeSelection filterSelection = new AttributeSelection();
+        filterSelection.setInputFormat(data);
+        Instances selection = Filter.useFilter(data,filterSelection);
+        selection.setClassIndex(selection.numAttributes()-1);
+        return selection;
+    }
+
 }
