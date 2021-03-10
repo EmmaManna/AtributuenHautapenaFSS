@@ -2,9 +2,11 @@ package ehu.weka;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.core.Attribute;
 import weka.core.Instances;
 
 import java.io.FileWriter;
+import java.util.Collections;
 
 public class MainAtributuenHautapena {
     public static void main(String[] args) throws Exception {
@@ -30,13 +32,13 @@ public class MainAtributuenHautapena {
 
 
         //1. Eredu iragarle optimoa sortu eta gorde
-        iragarleOptimoa(data,args[1]);
+        Instances selection = iragarleOptimoa(data,args[1]);
 
 
         //2. Test multzoaren iragarpenak egin
         Instances test = fss.datuakKargatu(args[2]);
         Classifier model = fss.deserialize(args[1]);
-        iragarpenak(data,test,model,args[3]);
+        iragarpenak(selection,test,model,args[3]);
 
 
         //3. Aurre-prozesua:
@@ -44,16 +46,16 @@ public class MainAtributuenHautapena {
         Instances testR = fss.replaceMissingValues(test);
 
         //3.1.Iragarle optimoa
-        iragarleOptimoa(dataR,args[4]);
+        Instances selectionR =iragarleOptimoa(dataR,args[4]);
 
         //3.2.Iragarpenak
         Classifier modelR = fss.deserialize(args[4]);
-        iragarpenak(dataR,testR,modelR,args[5]);
+        iragarpenak(selectionR,testR,modelR,args[5]);
 
     }
 
 
-    public static void iragarleOptimoa(Instances data, String pathModel) throws Exception {
+    public static Instances iragarleOptimoa(Instances data, String pathModel) throws Exception {
         //1. Eredu iragarle optimoa sortu eta gorde
         AtributuenHautapena fss = AtributuenHautapena.getInstance();
         Instances selection = fss.selection(data);
@@ -64,8 +66,10 @@ public class MainAtributuenHautapena {
         System.out.println("F-score: "+holdOut.weightedFMeasure()+"\n");
 
         Classifier cls = fss.sailkatzailea();
-        cls.buildClassifier(data);
+        cls.buildClassifier(selection);
         fss.serialization(pathModel,cls);
+
+        return selection;
     }
 
 
@@ -73,7 +77,18 @@ public class MainAtributuenHautapena {
         //2. Test multzoaren iragarpenak egin
         if(!data.equalHeaders(test)){
             System.out.println("Test-multzoa ez da eredu iragarlearekiko bateragarria.");
-            System.exit(0);
+            System.out.println("Atributu kopurua test : "+test.numAttributes());
+            System.out.println("Atributu kopurua data : "+data.numAttributes());
+            int i = 0;
+            for(Attribute attribute : Collections.list(test.enumerateAttributes())){
+                if(!Collections.list(data.enumerateAttributes()).contains(attribute)){
+                    test.deleteAttributeAt(attribute.index()-i);
+                    i++;
+                }
+            }
+            System.out.println("\nTest-multzoko atributu kopurua egokitu ondoren:");
+            System.out.println("Atributu kopurua test : "+test.numAttributes());
+            System.out.println("Atributu kopurua data : "+data.numAttributes()+"\n");
         }
 
         Evaluation eval = new Evaluation(test);

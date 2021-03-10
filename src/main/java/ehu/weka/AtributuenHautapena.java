@@ -11,6 +11,8 @@ import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 import weka.filters.unsupervised.instance.Randomize;
 import weka.filters.unsupervised.instance.RemovePercentage;
 
+import java.util.ArrayList;
+
 public class AtributuenHautapena {
     private static final AtributuenHautapena instance = new AtributuenHautapena();
 
@@ -93,5 +95,20 @@ public class AtributuenHautapena {
         Instances replaced = Filter.useFilter(data,filterReplace);
         replaced.setClassIndex(replaced.numAttributes()-1);
         return replaced;
+    }
+
+    public String[] atributuLista(Instances data) throws Exception {
+        String[] emaitza = new String[data.numAttributes()];
+        for(int i=0; i<emaitza.length; i++){ emaitza[i] = data.attribute(i).name(); }
+        return emaitza;
+    }
+
+    public int[] arrayConverter(ArrayList<Integer> integers){
+        int[] emaitza = new int[integers.size()];
+        for (int i=0; i < emaitza.length; i++)
+        {
+            emaitza[i] = integers.get(i).intValue();
+        }
+        return emaitza;
     }
 }
