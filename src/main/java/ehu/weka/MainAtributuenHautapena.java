@@ -37,7 +37,8 @@ public class MainAtributuenHautapena {
 
         //2. Test multzoaren iragarpenak egin
         Instances test = fss.datuakKargatu(args[2]);
-        Classifier model = fss.deserialize(args[1]);
+        Classifier model = fss.sailkatzailea();
+        model.buildClassifier(selection);
         iragarpenak(selection,test,model,args[3]);
 
 
@@ -49,7 +50,8 @@ public class MainAtributuenHautapena {
         Instances selectionR =iragarleOptimoa(dataR,args[4]);
 
         //3.2.Iragarpenak
-        Classifier modelR = fss.deserialize(args[4]);
+        Classifier modelR = fss.sailkatzailea();
+        modelR.buildClassifier(selectionR);
         iragarpenak(selectionR,testR,modelR,args[5]);
 
     }
@@ -86,6 +88,7 @@ public class MainAtributuenHautapena {
                     i++;
                 }
             }
+
             System.out.println("\nTest-multzoko atributu kopurua egokitu ondoren:");
             System.out.println("Atributu kopurua test : "+test.numAttributes());
             System.out.println("Atributu kopurua data : "+data.numAttributes()+"\n");
