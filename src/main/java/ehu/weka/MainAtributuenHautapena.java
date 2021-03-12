@@ -4,7 +4,11 @@ import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.ConverterUtils;
 
+import javax.sql.DataSource;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.Collections;
 
@@ -81,6 +85,8 @@ public class MainAtributuenHautapena {
             System.out.println("Test-multzoa ez da eredu iragarlearekiko bateragarria.");
             System.out.println("Atributu kopurua test : "+test.numAttributes());
             System.out.println("Atributu kopurua data : "+data.numAttributes());
+            System.out.println("Instantzia kopurua test : "+test.numInstances());
+            System.out.println("Instantzia kopurua data : "+data.numInstances());
 
             int i=0;
             int[] indizeak = new int[test.numAttributes()-data.numAttributes()];
@@ -90,7 +96,7 @@ public class MainAtributuenHautapena {
                     i++;
                 }
             }
-            test = AtributuenHautapena.getInstance().removeAttributes(data,test,indizeak);
+            test = AtributuenHautapena.getInstance().removeAttributes(test,indizeak);
 
             /*
             int i = 0;
@@ -104,10 +110,28 @@ public class MainAtributuenHautapena {
 
             System.out.println("\nTest-multzoko atributu kopurua egokitu ondoren:");
             System.out.println("Atributu kopurua test : "+test.numAttributes());
-            System.out.println("Atributu kopurua data : "+data.numAttributes()+"\n");
+            System.out.println("Atributu kopurua data : "+data.numAttributes());
+            System.out.println("Instantzia kopurua test : "+test.numInstances());
+            System.out.println("Instantzia kopurua data : "+data.numInstances()+"\n");
+
+            if(data.equalHeaders(test)){
+                System.out.println("Test-multzoa eredu iragarlearekiko bateragarria da orain.");
+            }
         }
 
-        Evaluation eval = new Evaluation(test);
+        /*
+        for(Attribute attribute : Collections.list(test.enumerateAttributes())){
+            System.out.println("t "+attribute.name()+attribute.index());
+        }
+         */
+
+        ArffSaver saver = new ArffSaver();
+        saver.setInstances(test);
+        saver.setFile(new File("C:/Users/emmam/Desktop/WEKA/Praktika5/testremoved.arff"));
+        saver.writeBatch();
+
+
+        Evaluation eval = new Evaluation(data);
         eval.evaluateModel(model,test);
 
         FileWriter fw = new FileWriter(path);

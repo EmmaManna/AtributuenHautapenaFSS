@@ -113,13 +113,16 @@ public class AtributuenHautapena {
         return emaitza;
     }
 
-    public Instances removeAttributes(Instances data, Instances test, int[] indizeak) throws Exception {
+    public Instances removeAttributes(Instances test, int[] indizeak) throws Exception {
         Remove removeFilter = new Remove();
-        removeFilter.setInputFormat(data);
         removeFilter.setAttributeIndicesArray(indizeak);
-        removeFilter.setInvertSelection(true);
+        removeFilter.setInvertSelection(false);
+        //removeFilter.setAttributeIndices("3,4,7,9,10,13,14");
+        removeFilter.setInputFormat(test);
         Instances removed = Filter.useFilter(test,removeFilter);
         removed.setClassIndex(removed.numAttributes()-1);
         return removed;
     }
+
+
 }
