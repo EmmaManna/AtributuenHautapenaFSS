@@ -7,6 +7,7 @@ import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
+import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 import weka.filters.unsupervised.instance.Randomize;
 import weka.filters.unsupervised.instance.RemovePercentage;
@@ -110,5 +111,15 @@ public class AtributuenHautapena {
             emaitza[i] = integers.get(i).intValue();
         }
         return emaitza;
+    }
+
+    public Instances removeAttributes(Instances data, Instances test, int[] indizeak) throws Exception {
+        Remove removeFilter = new Remove();
+        removeFilter.setInputFormat(data);
+        removeFilter.setAttributeIndicesArray(indizeak);
+        removeFilter.setInvertSelection(true);
+        Instances removed = Filter.useFilter(test,removeFilter);
+        removed.setClassIndex(removed.numAttributes()-1);
+        return removed;
     }
 }

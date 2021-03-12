@@ -81,6 +81,18 @@ public class MainAtributuenHautapena {
             System.out.println("Test-multzoa ez da eredu iragarlearekiko bateragarria.");
             System.out.println("Atributu kopurua test : "+test.numAttributes());
             System.out.println("Atributu kopurua data : "+data.numAttributes());
+
+            int i=0;
+            int[] indizeak = new int[test.numAttributes()-data.numAttributes()];
+            for(Attribute attribute : Collections.list(test.enumerateAttributes())){
+                if(!Collections.list(data.enumerateAttributes()).contains(attribute)) {
+                    indizeak[i] = attribute.index();
+                    i++;
+                }
+            }
+            test = AtributuenHautapena.getInstance().removeAttributes(data,test,indizeak);
+
+            /*
             int i = 0;
             for(Attribute attribute : Collections.list(test.enumerateAttributes())){
                 if(!Collections.list(data.enumerateAttributes()).contains(attribute)){
@@ -88,6 +100,7 @@ public class MainAtributuenHautapena {
                     i++;
                 }
             }
+            */
 
             System.out.println("\nTest-multzoko atributu kopurua egokitu ondoren:");
             System.out.println("Atributu kopurua test : "+test.numAttributes());
